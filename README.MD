@@ -5,7 +5,7 @@
 
 > php-src 为PHP源码方式实现
 
-> 使用示例  [test.php](./test.php)
+> 使用示例  [test.php](./test.php) 
 
 #### linux or mac 下编译
 
@@ -16,6 +16,8 @@ make && make install
 ```
 
 #### windows 下编译
+
+> [php 8.1 windows dll](https://github.com/shanliu/simhash/releases)
 
 > load build env 
 
