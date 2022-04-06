@@ -1,7 +1,6 @@
 /**
- * lsys core
  * @author     Lonely <shan.liu@msn.com>
- * @copyright  (c) 2017 Lonely <shan.liu@msn.com>
+ * @copyright  (c) 2017 ShanLiu <shan.liu@msn.com>
  * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
 #include "php.h"
@@ -9,73 +8,66 @@
 #include "ext/standard/info.h"
 #include "ext/standard/md5.h"
 #include "zend_smart_str.h"
-#include "zend_smart_string.h"
-
-zend_class_entry *simhash_factory_entry;
-
-ZEND_BEGIN_ARG_INFO_EX(simhash_factory_construct_args, 0,0,1)
-    ZEND_ARG_INFO(0, hash_size)
-ZEND_END_ARG_INFO()
-
-
-#define HASHSIZE_ATTR "hash_size",strlen("hash_size")
-#define WEIGHT_ATTR "weight",strlen("weight")
-
+#include "ext/standard/php_smart_string.h"
+#include "simhash_factory.h"
+#include "common.h"
+#include "zend_exceptions.h"
 
 
 ZEND_METHOD(simhash_factory_entry, __construct)
 {
-	zend_long size;
-	zval *object;
-    if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "Ol",&object,simhash_factory_entry,&size) == FAILURE) {
-        RETURN_FALSE;
-    }
-    zend_update_property_long(simhash_factory_entry,object,HASHSIZE_ATTR,size TSRMLS_DC);
+    zend_long size;
+    ZEND_PARSE_PARAMETERS_START(1,1)
+            Z_PARAM_LONG(size)
+    ZEND_PARSE_PARAMETERS_END();
+    simhash_update_property_long(getThis(),ZEND_STRL("hash_size"),size);
 }
 ZEND_METHOD(simhash_factory_entry, setWeight)
 {
-    zval *wg_arr;
-    zval *object;
-    if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "Oa",&object,simhash_factory_entry,&wg_arr) == FAILURE) {
-        RETURN_FALSE;
-    }
-    zend_update_property(simhash_factory_entry,object,WEIGHT_ATTR,wg_arr TSRMLS_DC);
-
-    RETURN_ZVAL(object,1,0);
-
+    zval  *arr;
+    ZEND_PARSE_PARAMETERS_START(1,1)
+        Z_PARAM_ARRAY(arr)
+    ZEND_PARSE_PARAMETERS_END();
+    simhash_update_property(getThis(),ZEND_STRL("hash_size"),arr);
+    RETURN_ZVAL(getThis(),1,0);
 }
 ZEND_METHOD(simhash_factory_entry, fingerprint)
 {
     zval *word_arr;
-    zval *object;
-    if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "Oa",&object,simhash_factory_entry,&word_arr) == FAILURE) {
-        RETURN_FALSE;
-    }
+    ZEND_PARSE_PARAMETERS_START(1,1)
+        Z_PARAM_ARRAY(word_arr)
+    ZEND_PARSE_PARAMETERS_END();
 
     zval param[1];
-    ZVAL_ZVAL(&param[0],word_arr,1,1);
+    ZVAL_ZVAL(&param[0],word_arr,1,0);
 
     zval retval,handle;
     ZVAL_STRING(&handle,"array_count_values");
 
     if(call_user_function(EG(function_table), NULL, &handle, &retval, 1, param)!= SUCCESS){
-        zend_string_release(Z_STR(handle));
+        zval_dtor(&param[0]);
+        zval_dtor(&handle);
         RETURN_FALSE;
     }
-    zend_string_release(Z_STR(handle));
-
+    zval_dtor(&param[0]);
+    zval_dtor(&handle);
 
     zend_array *warr=NULL;
-    zval *warrval=zend_read_property(simhash_factory_entry,object,WEIGHT_ATTR,1,NULL TSRMLS_DC);
+    zval *warrval=simhash_read_property(getThis(),ZEND_STRL("weight"),1);
     if(Z_TYPE_P(warrval)==IS_ARRAY)warr=Z_ARR_P(warrval);
 
+    zend_long vector_len;
+    vector_len=Z_LVAL_P(simhash_read_property(getThis(),ZEND_STRL("hash_size"),1));
+    if (vector_len>64){
+        zend_throw_exception_ex(zend_ce_exception, 1, "your hash size >: %d",(int)vector_len);
+        zval_dtor(&retval);
+        return ;
+    }
 
-    long vector_len;
-    vector_len=Z_LVAL_P(zend_read_property(simhash_factory_entry,object,HASHSIZE_ATTR,1,NULL TSRMLS_DC));
-    long * vector=(long*)emalloc(vector_len*sizeof(long));
 
-    memset(vector,0,vector_len*sizeof(long));
+    zend_long * vector=(zend_long*)emalloc(vector_len*sizeof(zend_long));
 
+    memset(vector,0,vector_len*sizeof(zend_long));
 
     char * cvmap[103];
     cvmap['0']="0000";
@@ -98,8 +90,6 @@ ZEND_METHOD(simhash_factory_entry, fingerprint)
     int i=0, count = zend_hash_num_elements(Z_ARRVAL(retval));
 	zend_hash_internal_pointer_reset(Z_ARRVAL(retval));
 	zval *z_item;
-
-
 
 	for (i = 0; i < count; i ++) {
 		zend_string* key;
@@ -141,8 +131,8 @@ ZEND_METHOD(simhash_factory_entry, fingerprint)
         }
 
         for(int j=0;j<vector_len;j++){
-            long * _v=vector+j;
-            long swig=(long)ceil(wig*difwig);
+            zend_long * _v=vector+j;
+            zend_long swig=(zend_long)ceil(wig*difwig);
             if (buf.c[j] == '1'){
                 *_v += swig;
             }else{
@@ -154,7 +144,7 @@ ZEND_METHOD(simhash_factory_entry, fingerprint)
 		zend_hash_move_forward(Z_ARRVAL(retval));
 	}
 
-    zend_array_destroy(Z_ARR(retval));
+    zval_dtor(&retval);
 
     zend_long fingerprint=0;
 
@@ -173,15 +163,15 @@ ZEND_METHOD(simhash_factory_entry, fingerprint)
 
 static zend_function_entry simhash_factory_entry_method[] = {
         ZEND_ME(simhash_factory_entry, __construct, simhash_factory_construct_args, ZEND_ACC_PUBLIC)
-        ZEND_ME(simhash_factory_entry, fingerprint, NULL, ZEND_ACC_PUBLIC)
-        ZEND_ME(simhash_factory_entry, setWeight, NULL, ZEND_ACC_PUBLIC)
+        ZEND_ME(simhash_factory_entry, fingerprint, simhash_factory_fingerprint_args, ZEND_ACC_PUBLIC)
+        ZEND_ME(simhash_factory_entry, setWeight, simhash_factory_set_weight_args, ZEND_ACC_PUBLIC)
         PHP_FE_END
 };
-
-extern void simhash_factory_init(){
+zend_class_entry *simhash_factory_entry_ptr;
+void simhash_factory_init(){
     zend_class_entry simhash_factory;
-    INIT_NS_CLASS_ENTRY(simhash_factory,"LsExt","SimHashFactory",simhash_factory_entry_method);
-    simhash_factory_entry = zend_register_internal_class(&simhash_factory TSRMLS_CC);
-    zend_declare_property_null(simhash_factory_entry, HASHSIZE_ATTR, ZEND_ACC_PROTECTED TSRMLS_CC);
-    zend_declare_property_null(simhash_factory_entry, WEIGHT_ATTR, ZEND_ACC_PROTECTED TSRMLS_CC);
+    INIT_NS_CLASS_ENTRY(simhash_factory,SIMHASH_NS,"SimHashFactory",simhash_factory_entry_method);
+    simhash_factory_entry_ptr = zend_register_internal_class(&simhash_factory);
+    zend_declare_property_null(simhash_factory_entry_ptr, ZEND_STRL("hash_size"), ZEND_ACC_PROTECTED);
+    zend_declare_property_null(simhash_factory_entry_ptr, ZEND_STRL("weight"), ZEND_ACC_PROTECTED );
 }

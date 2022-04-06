@@ -1,13 +1,30 @@
 文本相似度比较(simhash算法)
 ===
 
-> PHP扩展方式实现.[兼容php>=7版本]
+> PHP扩展方式实现
 
 > php-src 为PHP源码方式实现
 
+#### linux or mac 下编译
 
-使用示例参阅 test.php 此示例执行10万次 扩展需要1.5秒 源码需要30秒  20倍左右效率比
+```shell
+cd simhash
+phpize && ./configure
+make && make install
+```
 
+#### windows 下编译
 
-> 图片相似度 可用 http://www.phash.org 官方带php扩展
+> load build env 
 
+```
+打开 [x64|x86] Native Tools Command Prompt for VS 2017 编译命令行
+加载PHP编译变量 \your-php-sdk-binary-tools-dir\bin\phpsdk_setvars.bat 
+```
+
+```cmd
+cd your_php_src # PHP 源码目录 下载 simhash 源码到 ext/simhash 下
+buildconf.bat
+configure --disable-all --enable-cli --enable-simhash=shared 
+nmake
+```

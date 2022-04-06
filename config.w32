@@ -1,0 +1,5 @@
+ARG_ENABLE('simhash', 'simhash support', 'no');
+if (PHP_SIMHASH != 'no') {
+    AC_DEFINE('HAVE_PHP_SIMHASH', 1, 'zxing_cpp support enabled');
+    EXTENSION('simhash', 'php_simhash.c common.c simhash.c simhash_factory.c', null, '');
+}
