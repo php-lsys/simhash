@@ -5,6 +5,8 @@
 
 > php-src 为PHP源码方式实现
 
+> 使用示例  [test.php](./test.php)
+
 #### linux or mac 下编译
 
 ```shell
