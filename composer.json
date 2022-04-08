@@ -2,8 +2,7 @@
 	"name" : "shanliu/simhash",
 	"type" : "library",
 	"license": "Apache-2.0",
-	"version" : "1.0.0",
-	"description" : "lsys module simhash",
+	"description" : "simhash for php extension",
 	"autoload" : {
 		"psr-4" : {
 			"LsExt\\" : "php-src/LsExt/"
