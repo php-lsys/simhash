@@ -5,7 +5,8 @@
  * @copyright  (c) 2017 Lonely <shan.liu@msn.com>
  * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace LSYS;
+namespace LsExt;
+if (!class_exists(SimHashFactory::class)){
 class SimHashFactory
 {
 	protected $hashSize;
@@ -71,4 +72,5 @@ class SimHashFactory
 		}
 		return bindec($fingerprint);
 	}
+}
 }

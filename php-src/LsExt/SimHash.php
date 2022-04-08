@@ -5,7 +5,8 @@
  * @copyright  (c) 2017 Lonely <shan.liu@msn.com>
  * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace LSYS;
+namespace LsExt;
+if (!class_exists(SimHash::class)){
 class SimHash
 {
 	protected $fingerprint;
@@ -46,4 +47,5 @@ class SimHash
 	{
 		return $this->fingerprint;
 	}
+}
 }

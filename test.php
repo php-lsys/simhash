@@ -1,11 +1,13 @@
 <?php
-$a=new LsExt\SimHashFactory(32);//php源码代替 $a=new LSYS\SimHashFactory(32);
+include("php-src/LsExt/SimHash.php");
+include("php-src/LsExt/SimHashFactory.php");
+$a=new LsExt\SimHashFactory(32);
 //请先把文章进行分词,中文分词算法网上大把.英文直接用空格拆分即可
 $assss=["你好","bbb","ccc1"];
 $assss1=["你好","bbb","ccc"];
 //$a->setWeight(['ccc'=>2]);//设置某个关键字权重,默认为1
-$b=new LsExt\SimHash($a->fingerprint($assss));//php源码代替 $b=new LSYS\SimHash($a->fingerprint($assss));
- $c=new LsExt\SimHash($a->fingerprint($assss1));//php源码代替  $c=new LSYS\SimHash($a->fingerprint($assss1));
+$b=new LsExt\SimHash($a->fingerprint($assss));
+ $c=new LsExt\SimHash($a->fingerprint($assss1));
 //16进制输出
 var_dump($b->gethex());
 var_dump($c->gethex());

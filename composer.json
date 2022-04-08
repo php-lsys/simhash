@@ -6,7 +6,7 @@
 	"description" : "lsys module simhash",
 	"autoload" : {
 		"psr-4" : {
-			"LSYS\\" : "php-src/LSYS/"
+			"LsExt\\" : "php-src/LsExt/"
 		}
 	},
 	"require" : {

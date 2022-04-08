@@ -3,9 +3,10 @@
 
 > PHP扩展方式实现,支持 php>=7.0
 
-> php-src 为PHP方式实现
+> php-src 为PHP方式实现 默认用php方式，编译扩展后使用扩展
 
 > 使用示例  [test.php](./test.php) 
+
 
 #### linux or mac 下编译
 
