@@ -3,7 +3,7 @@
 
 > PHP扩展方式实现,支持 php>=7.0
 
-> php-src 为PHP源码方式实现
+> php-src 为PHP方式实现
 
 > 使用示例  [test.php](./test.php) 
 
